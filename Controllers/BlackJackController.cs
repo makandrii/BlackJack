@@ -58,7 +58,16 @@ public class BlackJackController : ControllerBase
                     if (score == 11 && game.PlayerScore + score > 21)
                         game.PlayerScore += 1;
                     else
-                        game.PlayerScore += score; break;
+                        game.PlayerScore += score; 
+                    break;
+                }
+            case "split":
+                {
+                    if (score == 11 && game.SplitScore + score > 21)
+                        game.SplitScore += 1;
+                    else
+                        game.SplitScore += score; 
+                    break;
                 }
         }
 
@@ -75,6 +84,10 @@ public class BlackJackController : ControllerBase
         {
             return NotFound();
         }
+        if (game.Bet > game.PlayerTokens)
+        {
+            return BadRequest();
+        }
 
         var deck = new Deck() { Id = id };
         deck.ShuffleDeck();
@@ -85,7 +98,7 @@ public class BlackJackController : ControllerBase
         await _gamesService.UpdateAsync(id, game);
 
 #pragma warning disable CS8604 // Возможно, аргумент-ссылка, допускающий значение NULL.
-        List<Card> cards = new List<Card>() 
+        List<Card> cards = new() 
         { 
             DealCard(id, "player").Result.Value,
             DealCard(id, "player").Result.Value,
@@ -114,12 +127,62 @@ public class BlackJackController : ControllerBase
 
         CheckWinner(ref game);
 
+        game.SplitBet = null;
+        game.SplitScore = null;
         game.Bet = null;
         game.DealerScore = 0;
         game.PlayerScore = 0;
         await _gamesService.UpdateAsync(id, game);
 
         return game;
+    }
+
+    [HttpGet("{id:length(24)}/double")]
+    public async Task<ActionResult<Card>> Double(string id)
+    {
+        var game = await _gamesService.GetAsync(id);
+        if (game == null)
+        {
+            return NotFound();
+        }
+        if (game.Bet > game.PlayerTokens)
+        {
+            return BadRequest();
+        }
+
+        game.PlayerTokens -= game.Bet;
+        game.Bet *= 2;
+        await _gamesService.UpdateAsync(id, game);
+
+        return await DealCard(id, "player");
+    }
+
+    [HttpGet("{id:length(24)}/split")]
+    public async Task<ActionResult<List<Card>>> Split(string id)
+    {
+        var game = await _gamesService.GetAsync(id);
+        if (game == null)
+        {
+            return NotFound();
+        }
+        if (game.Bet > game.PlayerTokens)
+        {
+            return BadRequest();
+        }
+
+        game.PlayerTokens -= game.Bet;
+        game.SplitBet = game.Bet;
+        await _gamesService.UpdateAsync(id, game);
+
+#pragma warning disable CS8604 // Возможно, аргумент-ссылка, допускающий значение NULL.
+        List<Card> cards = new()
+        {
+            DealCard(id, "split").Result.Value,
+            DealCard(id, "split").Result.Value
+        };
+#pragma warning restore CS8604 // Возможно, аргумент-ссылка, допускающий значение NULL.
+
+        return cards;
     }
 
     public int GetScore(Card card)
@@ -146,6 +209,26 @@ public class BlackJackController : ControllerBase
         else if (game.PlayerScore == game.DealerScore)
         {
             game.PlayerTokens += game.Bet;
+        }
+
+        // Якщо гравець не сплітував, то виходимо із методу
+        if (game.SplitBet == null) return;
+
+        if (game.SplitScore > 21 && game.DealerScore > 21)
+        {
+            game.PlayerTokens += game.SplitBet;
+        }
+        else if (game.DealerScore > 21)
+        {
+            game.PlayerTokens += game.SplitBet * 2;
+        }
+        else if (game.SplitScore > game.DealerScore)
+        {
+            game.PlayerTokens += game.SplitBet * 2;
+        }
+        else if (game.SplitScore == game.DealerScore)
+        {
+            game.PlayerTokens += game.SplitBet;
         }
     }
 }

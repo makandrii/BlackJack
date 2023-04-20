@@ -12,5 +12,7 @@ namespace BlackJackApi.Models
         public int? Bet { get; set; } = null!;
         public int? PlayerScore { get; set; } = null!;
         public int? DealerScore { get; set; } = null!;
+        public int? SplitBet { get; set; } = null!;
+        public int? SplitScore { get; set; } = null!;
     }
 }
