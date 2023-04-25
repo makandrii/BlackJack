@@ -51,7 +51,11 @@ public class BlackJackController : ControllerBase
         {
             case "dealer":
                 {
-                    game.DealerScore += score; break;
+                    if (score == 11 && game.DealerScore + score > 21)
+                        game.DealerScore += 1;
+                    else
+                        game.DealerScore += score;
+                    break;
                 }
             case "player":
                 {
@@ -172,12 +176,21 @@ public class BlackJackController : ControllerBase
 
         game.PlayerTokens -= game.Bet;
         game.SplitBet = game.Bet;
+        if (game.PlayerScore == 13)
+        {
+            game.PlayerScore--;
+        }
+        else
+        {
+            game.PlayerScore /= 2;
+        }
+        game.SplitScore = game.PlayerScore;
         await _gamesService.UpdateAsync(id, game);
 
 #pragma warning disable CS8604 // Возможно, аргумент-ссылка, допускающий значение NULL.
         List<Card> cards = new()
         {
-            DealCard(id, "split").Result.Value,
+            DealCard(id, "player").Result.Value,
             DealCard(id, "split").Result.Value
         };
 #pragma warning restore CS8604 // Возможно, аргумент-ссылка, допускающий значение NULL.

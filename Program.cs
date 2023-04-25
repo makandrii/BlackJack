@@ -16,15 +16,8 @@ builder.Services.AddSingleton<GamesService>();
 builder.Services.AddSingleton<DecksService>();
 
 builder.Services.AddControllers();
-//builder.Services.AddSwaggerGen();
 
 var app = builder.Build();
-
-//app.UseSwagger();
-//if (app.Environment.IsDevelopment())
-//{
-//    app.UseSwaggerUI();
-//}
 
 app.UseHttpsRedirection();
 
