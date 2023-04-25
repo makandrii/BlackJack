@@ -7,8 +7,8 @@ builder.Services.AddCors(options =>
     options.AddDefaultPolicy(
                       policy =>
                       {
-                          policy.WithOrigins("http://127.0.0.1:5500",
-                                              "https://localhost:7024");
+                          policy.WithOrigins("https://makandrii.github.io",
+                                              "https://makandrii-blackjack.azurewebsites.net");
                       });
 });
 
