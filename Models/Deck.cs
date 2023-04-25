@@ -7,12 +7,11 @@ namespace BlackJackApi.Models
     {
         [BsonId]
         [BsonRepresentation(BsonType.ObjectId)]
-        public string Id { get; set; }
+        public string? Id { get; set; }
         public List<Card> Cards { get; set; } = new List<Card>();
-        private int _currentCard = 0;
         public Deck()
         {
-            string[] suits = { "hearts", "diamonds", "clubs", "spades" };
+            string[] suits = { "Hearts", "Diamonds", "Clubs", "Spades" };
             string[] ranks = { "2", "3", "4", "5", "6", "7", "8", "9", "10", "J", "Q", "K", "A" };
             foreach (var suit in suits)
                 foreach (var rank in ranks)
@@ -26,6 +25,5 @@ namespace BlackJackApi.Models
                 (Cards[i], Cards[j]) = (Cards[j], Cards[i]);
             }
         }
-        public Card DealCard() => Cards[_currentCard++];
     }
 }

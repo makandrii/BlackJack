@@ -46,7 +46,7 @@ public class BlackJackController : ControllerBase
         deck.Cards.Remove(card);
         await _decksService.UpdateAsync(id, deck);
 
-        var score = GetScore(card);
+        var score = card.GetScore();
         switch (whom)
         {
             case "dealer":
@@ -58,7 +58,7 @@ public class BlackJackController : ControllerBase
                     if (score == 11 && game.PlayerScore + score > 21)
                         game.PlayerScore += 1;
                     else
-                        game.PlayerScore += score; 
+                        game.PlayerScore += score;
                     break;
                 }
             case "split":
@@ -66,7 +66,7 @@ public class BlackJackController : ControllerBase
                     if (score == 11 && game.SplitScore + score > 21)
                         game.SplitScore += 1;
                     else
-                        game.SplitScore += score; 
+                        game.SplitScore += score;
                     break;
                 }
         }
@@ -84,7 +84,7 @@ public class BlackJackController : ControllerBase
         {
             return NotFound();
         }
-        if (game.Bet > game.PlayerTokens)
+        if (bet > game.PlayerTokens)
         {
             return BadRequest();
         }
@@ -120,12 +120,12 @@ public class BlackJackController : ControllerBase
 
         if (game.Bet == null)
         {
-            return NotFound();
+            return BadRequest();
         }
 
         await _decksService.RemoveAsync(id);
 
-        CheckWinner(ref game);
+        game.CheckWinner();
 
         game.SplitBet = null;
         game.SplitScore = null;
@@ -183,52 +183,5 @@ public class BlackJackController : ControllerBase
 #pragma warning restore CS8604 // Возможно, аргумент-ссылка, допускающий значение NULL.
 
         return cards;
-    }
-
-    public int GetScore(Card card)
-    {
-        if (int.TryParse(card.Rank, out int result)) return result;
-        if (card.Rank == "J" || card.Rank == "Q" || card.Rank == "K") return 10;
-        return 11;
-    }
-
-    public void CheckWinner(ref Game game)
-    {
-        if (game.PlayerScore > 21 && game.DealerScore > 21)
-        {
-            game.PlayerTokens += game.Bet;
-        }
-        else if (game.DealerScore > 21)
-        {
-            game.PlayerTokens += game.Bet * 2;
-        }
-        else if (game.PlayerScore > game.DealerScore)
-        {
-            game.PlayerTokens += game.Bet * 2;
-        }
-        else if (game.PlayerScore == game.DealerScore)
-        {
-            game.PlayerTokens += game.Bet;
-        }
-
-        // Якщо гравець не сплітував, то виходимо із методу
-        if (game.SplitBet == null) return;
-
-        if (game.SplitScore > 21 && game.DealerScore > 21)
-        {
-            game.PlayerTokens += game.SplitBet;
-        }
-        else if (game.DealerScore > 21)
-        {
-            game.PlayerTokens += game.SplitBet * 2;
-        }
-        else if (game.SplitScore > game.DealerScore)
-        {
-            game.PlayerTokens += game.SplitBet * 2;
-        }
-        else if (game.SplitScore == game.DealerScore)
-        {
-            game.PlayerTokens += game.SplitBet;
-        }
     }
 }
