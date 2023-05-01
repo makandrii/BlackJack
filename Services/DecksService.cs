@@ -31,4 +31,7 @@ public class DecksService
 
     public async Task RemoveAsync(string id) =>
         await _decksCollection.DeleteOneAsync(x => x.Id == id);
+
+    public async Task WipeAsync() =>
+        await _decksCollection.DeleteManyAsync(_ => true);
 }

@@ -8,7 +8,7 @@ namespace BlackJackApi.Models
         [BsonId]
         [BsonRepresentation(BsonType.ObjectId)]
         public string? Id { get; set; }
-        public List<Card> Cards { get; set; } = new List<Card>();
+        public List<Card> Cards { get; set; } = new();
         public Deck()
         {
             string[] suits = { "Hearts", "Diamonds", "Clubs", "Spades" };

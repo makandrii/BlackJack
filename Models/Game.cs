@@ -8,58 +8,54 @@ namespace BlackJackApi.Models
         [BsonId]
         [BsonRepresentation(BsonType.ObjectId)]
         public string? Id { get; set; }
-        public int? PlayerTokens { get; set; }
-        public int? Bet { get; set; } = null!;
-        public int? PlayerScore { get; set; } = null!;
-        public int? DealerScore { get; set; } = null!;
-        public int? SplitBet { get; set; } = null!;
-        public int? SplitScore { get; set; } = null!;
+        public Dealer Dealer { get; set; } = new();
+        public Player Player { get; set; } = new();
         public void CheckWinner()
         {
-            if (PlayerScore > 21 && DealerScore > 21)
+            if (Player.Score > 21 && Dealer.Score > 21)
             {
-                PlayerTokens += Bet;
+                Player.Tokens += Player.Bet;
             }
-            else if (DealerScore > 21)
+            else if (Dealer.Score > 21)
             {
-                PlayerTokens += Bet * 2;
+                Player.Tokens += Player.Bet * 2;
             }
-            else if (PlayerScore > 21)
+            else if (Player.Score > 21)
             {
                 return;
             }
-            else if (PlayerScore > DealerScore)
+            else if (Player.Score > Dealer.Score)
             {
-                PlayerTokens += Bet * 2;
+                Player.Tokens += Player.Bet * 2;
             }
-            else if (PlayerScore == DealerScore)
+            else if (Player.Score == Dealer.Score)
             {
-                PlayerTokens += Bet;
+                Player.Tokens += Player.Bet;
             }
         
 
             // Якщо гравець не сплітував, то виходимо із методу
-            if (SplitBet == null) return;
+            if (Player.Split == null) return;
 
-            if (SplitScore > 21 && DealerScore > 21)
+            if (Player.Split.Score > 21 && Dealer.Score > 21)
             {
-                PlayerTokens += SplitBet;
+                Player.Tokens += Player.Split.Bet;
             }
-            else if (DealerScore > 21)
+            else if (Dealer.Score > 21)
             {
-                PlayerTokens += SplitBet * 2;
+                Player.Tokens += Player.Split.Bet * 2;
             }
-            else if (SplitScore > 21)
+            else if (Player.Split.Score > 21)
             {
                 return;
             }
-            else if (SplitScore > DealerScore)
+            else if (Player.Split.Score > Dealer.Score)
             {
-                PlayerTokens += SplitBet * 2;
+                Player.Tokens += Player.Split.Bet * 2;
             }
-            else if (SplitScore == DealerScore)
+            else if (Player.Split.Score == Dealer.Score)
             {
-                PlayerTokens += SplitBet;
+                Player.Tokens += Player.Split.Bet;
             }
         }
     }
