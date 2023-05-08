@@ -268,6 +268,29 @@ public class BlackJackController : ControllerBase
         return cards;
     }
 
+    [HttpGet("{id:length(24)}/stay")]
+    public async Task<ActionResult<IEnumerable<Card>>> Stay(string id)
+    {
+        var game = await _gamesService.GetAsync(id);
+        if (game == null)
+        {
+            return NotFound();
+        }
+    
+        var result = new List<Card>();
+#pragma warning disable CS8602 // Разыменование вероятной пустой ссылки.
+        while (game.Dealer.Score < 17 && game.Dealer.Cards.Count < 5)
+        {
+#pragma warning disable CS8604 // Возможно, аргумент-ссылка, допускающий значение NULL.
+            result.Add(DealCard(id, "dealer").Result.Value);
+#pragma warning restore CS8604 // Возможно, аргумент-ссылка, допускающий значение NULL.
+            game = await _gamesService.GetAsync(id);
+        }
+#pragma warning restore CS8602 // Разыменование вероятной пустой ссылки.
+
+        return result;
+    }
+
     [HttpDelete("wipe")]
     public async Task<ActionResult> WipeDB()
     {
