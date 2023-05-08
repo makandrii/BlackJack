@@ -96,6 +96,10 @@ public class BlackJackController : ControllerBase
                     game.Player.Split.Score += score;
                     break;
                 }
+            default:
+                {
+                    return BadRequest();
+                }
         }
 
         await _gamesService.UpdateAsync(id, game);
@@ -172,8 +176,8 @@ public class BlackJackController : ControllerBase
         return game;
     }
 
-    [HttpGet("{id:length(24)}/double")]
-    public async Task<ActionResult<Card>> Double(string id)
+    [HttpGet("{id:length(24)}/double/{whom}")]
+    public async Task<ActionResult<Card>> Double(string id, string whom)
     {
 
         var game = await _gamesService.GetAsync(id);
@@ -181,16 +185,41 @@ public class BlackJackController : ControllerBase
         {
             return NotFound();
         }
-        if (game.Player.Bet > game.Player.Tokens)
+
+        switch (whom)
         {
-            return BadRequest();
+            case "player":
+                {
+                    if (game.Player.Bet > game.Player.Tokens)
+                    {
+                        return BadRequest();
+                    }
+
+                    game.Player.Tokens -= game.Player.Bet;
+                    game.Player.Bet *= 2;
+                    await _gamesService.UpdateAsync(id, game);
+
+                    return await DealCard(id, "player");
+                }
+            case "split":
+                {
+                    if (game.Player.Split == null
+                        || game.Player.Split.Bet > game.Player.Tokens)
+                    {
+                        return BadRequest();
+                    }
+
+                    game.Player.Tokens -= game.Player.Split.Bet;
+                    game.Player.Split.Bet *= 2;
+                    await _gamesService.UpdateAsync(id, game);
+
+                    return await DealCard(id, "split");
+                }
+            default:
+                {
+                    return BadRequest();
+                }
         }
-
-        game.Player.Tokens -= game.Player.Bet;
-        game.Player.Bet *= 2;
-        await _gamesService.UpdateAsync(id, game);
-
-        return await DealCard(id, "player");
     }
 
     [HttpGet("{id:length(24)}/split")]
