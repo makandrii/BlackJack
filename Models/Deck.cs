@@ -17,13 +17,5 @@ namespace BlackJackApi.Models
                 foreach (var rank in ranks)
                     Cards.Add(new Card() { Suit = suit, Rank = rank });
         }
-        public void ShuffleDeck()
-        {
-            for (int i = 0; i < Cards.Count; i++)
-            {
-                int j = new Random().Next(Cards.Count);
-                (Cards[i], Cards[j]) = (Cards[j], Cards[i]);
-            }
-        }
     }
 }

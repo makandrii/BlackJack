@@ -1,6 +1,7 @@
 ﻿using Microsoft.AspNetCore.Mvc;
 using BlackJackApi.Models;
 using BlackJackApi.Services;
+using BlackJackApi.Extensions;
 
 namespace BlackJackApi.Controllers;
 
